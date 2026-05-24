@@ -18,14 +18,6 @@
       "problemMatcher": []
     },
     {
-      "label": "start",
-      "type": "shell",
-      "command": "npm run start",
-      "group": "test",
-      "isBackground": true,
-      "problemMatcher": []
-    },
-    {
       "label": "lint",
       "type": "shell",
       "command": "npm run lint",

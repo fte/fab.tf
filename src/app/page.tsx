@@ -3,10 +3,12 @@ import RepoList, { Repo } from "@/components/RepoList";
 
 async function getRepos(): Promise<Repo[]> {
   const res = await fetch("https://api.github.com/users/fte/repos?per_page=100", {
-    next: { revalidate: 3600 },
     headers: { 'Accept': 'application/vnd.github+json' },
   });
-  if (!res.ok) throw new Error("Failed to fetch repos");
+  if (!res.ok) {
+    console.error(`GitHub API error: ${res.status}`);
+    return [];
+  }
   const allRepos = await res.json();
   return allRepos.filter((repo: Repo & { fork: boolean }) => !repo.fork);
 }
@@ -31,6 +33,9 @@ export default async function Home() {
           <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-6">Découvrez tous mes projets open source, mis à jour automatiquement via l’API GitHub.</p>
         </section>
         <RepoList repos={repos} />
+        {repos.length === 0 && (
+          <p className="text-zinc-500 dark:text-zinc-400 text-center">Impossible de charger les dépôts.</p>
+        )}
       </main>
       <footer className="w-full py-8 text-center text-xs text-zinc-500 border-t border-zinc-200 dark:border-zinc-800 mt-12">
         Données publiques issues de l’API GitHub · <a href="https://github.com/fte" className="underline hover:text-blue-600" target="_blank" rel="noopener noreferrer">@fte</a> · fab.tf
