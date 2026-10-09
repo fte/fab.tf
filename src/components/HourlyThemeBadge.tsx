@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { applyTheme, getHourlyTheme, type HourlyTheme } from "@/lib/themes";
+import { applyTheme, getForcedTheme, getHourlyTheme, type HourlyTheme } from "@/lib/themes";
 
 /**
  * Applique le thème de l'heure courante et affiche le badge correspondant.
@@ -10,13 +10,15 @@ import { applyTheme, getHourlyTheme, type HourlyTheme } from "@/lib/themes";
  * mode clair/sombre ainsi que le passage à l'heure suivante.
  */
 export default function HourlyThemeBadge() {
-  const [current, setCurrent] = useState<{ key: string; theme: HourlyTheme } | null>(null);
+  const [current, setCurrent] = useState<{ key: string; theme: HourlyTheme; preview: boolean } | null>(null);
 
   useEffect(() => {
     const update = () => {
       const next = getHourlyTheme();
-      applyTheme(next.theme, window.matchMedia("(prefers-color-scheme: dark)").matches);
-      setCurrent({ key: next.key, theme: next.theme });
+      const forced = getForcedTheme(window.location.search);
+      const theme = forced ?? next.theme;
+      applyTheme(theme, window.matchMedia("(prefers-color-scheme: dark)").matches);
+      setCurrent({ key: next.key, theme, preview: forced !== null });
     };
 
     update();
@@ -40,6 +42,7 @@ export default function HourlyThemeBadge() {
     <p className="text-sm text-zinc-500 dark:text-zinc-400" data-hour-key={current.key}>
       <span aria-hidden="true">{current.theme.emoji}</span> Thème « {current.theme.name} » ·{" "}
       {when}h UTC
+      {current.preview && " · aperçu"}
     </p>
   );
 }

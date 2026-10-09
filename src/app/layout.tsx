@@ -29,7 +29,10 @@ var k=new Date().toISOString().slice(0,13);
 var idx=h32(k)%n;
 var pk=new Date(Date.now()-3600000).toISOString().slice(0,13);
 if(idx===h32(pk)%n){idx=(idx+1)%n;}
-var t=themes[idx];
+var forced=new URLSearchParams(location.search).get('theme');
+var t=null;
+for(var q=0;q<n;q++){if(themes[q].id===forced){t=themes[q];break;}}
+if(!t){t=themes[idx];}
 var dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
 var c=dark?t.dark:t.light;
 var r=document.documentElement;

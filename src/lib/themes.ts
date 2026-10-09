@@ -81,6 +81,19 @@ export function hourKey(date = new Date()): string {
   return date.toISOString().slice(0, 13);
 }
 
+/** Renvoie un thème par son id (utilisé par l'aperçu ?theme=...), sinon null. */
+export function getThemeById(id: string | null | undefined): HourlyTheme | null {
+  if (!id) {
+    return null;
+  }
+  return THEMES.find((theme) => theme.id === id) ?? null;
+}
+
+/** Thème forcé via l'URL (`?theme=ocean`), pour l'aperçu / les captures. */
+export function getForcedTheme(search: string): HourlyTheme | null {
+  return getThemeById(new URLSearchParams(search).get("theme"));
+}
+
 /** Hash 32 bits simple et stable (djb2-like). */
 export function hashString(value: string): number {
   let hash = 0;
