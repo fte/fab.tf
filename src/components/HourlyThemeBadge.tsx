@@ -15,7 +15,7 @@ export default function HourlyThemeBadge() {
   useEffect(() => {
     const update = () => {
       const next = getHourlyTheme();
-      const forced = getForcedTheme(window.location.search);
+      const forced = getForcedTheme(window.location.search, window.location.hash);
       const theme = forced ?? next.theme;
       applyTheme(theme, window.matchMedia("(prefers-color-scheme: dark)").matches);
       setCurrent({ key: next.key, theme, preview: forced !== null });

@@ -86,12 +86,18 @@ export function getThemeById(id: string | null | undefined): HourlyTheme | null 
   if (!id) {
     return null;
   }
-  return THEMES.find((theme) => theme.id === id) ?? null;
+  const wanted = id.trim().toLowerCase();
+  return THEMES.find((theme) => theme.id === wanted) ?? null;
 }
 
-/** Thème forcé via l'URL (`?theme=ocean`), pour l'aperçu / les captures. */
-export function getForcedTheme(search: string): HourlyTheme | null {
-  return getThemeById(new URLSearchParams(search).get("theme"));
+/**
+ * Thème forcé pour l'aperçu / les captures. Accepte `?theme=ocean` ou
+ * `#theme=ocean`, sans se soucier de la casse ni des espaces.
+ */
+export function getForcedTheme(search: string, hash = ""): HourlyTheme | null {
+  const fromQuery = new URLSearchParams(search).get("theme");
+  const fromHash = new URLSearchParams(hash.replace(/^#/, "")).get("theme");
+  return getThemeById(fromQuery ?? fromHash);
 }
 
 /** Hash 32 bits simple et stable (djb2-like). */

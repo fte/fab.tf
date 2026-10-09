@@ -29,7 +29,7 @@ var k=new Date().toISOString().slice(0,13);
 var idx=h32(k)%n;
 var pk=new Date(Date.now()-3600000).toISOString().slice(0,13);
 if(idx===h32(pk)%n){idx=(idx+1)%n;}
-var forced=new URLSearchParams(location.search).get('theme');
+var forced=((new URLSearchParams(location.search).get('theme'))||(new URLSearchParams(location.hash.replace(/^#/,'')).get('theme'))||'').trim().toLowerCase();
 var t=null;
 for(var q=0;q<n;q++){if(themes[q].id===forced){t=themes[q];break;}}
 if(!t){t=themes[idx];}
@@ -37,6 +37,7 @@ var dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').ma
 var c=dark?t.dark:t.light;
 var r=document.documentElement;
 r.dataset.hourTheme=t.id;
+r.dataset.hourForced=forced;
 r.dataset.hourKey=k;
 r.style.setProperty('--accent',c.accent);
 r.style.setProperty('--page-from',c.from);
