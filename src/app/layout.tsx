@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
+import { THEMES } from "@/lib/themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,29 @@ export const metadata: Metadata = {
   description: "Liste moderne et responsive de tous les dépôts publics GitHub de l’utilisateur fte.",
 };
 
+// Applique le thème de l'heure courante avant le premier rendu (anti-flash).
+// La logique de hash doit rester alignée avec src/lib/themes.ts.
+const themeBootstrapScript = `(function(){try{
+var themes=${JSON.stringify(THEMES)};
+var n=themes.length;
+function h32(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h;}
+var k=new Date().toISOString().slice(0,13);
+var idx=h32(k)%n;
+var pk=new Date(Date.now()-3600000).toISOString().slice(0,13);
+if(idx===h32(pk)%n){idx=(idx+1)%n;}
+var t=themes[idx];
+var dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+var c=dark?t.dark:t.light;
+var r=document.documentElement;
+r.dataset.hourTheme=t.id;
+r.dataset.hourKey=k;
+r.style.setProperty('--accent',c.accent);
+r.style.setProperty('--page-from',c.from);
+r.style.setProperty('--page-via',c.via);
+r.style.setProperty('--page-to',c.to);
+r.style.setProperty('--card-border',c.border);
+}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,6 +52,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

@@ -17,12 +17,13 @@ export default function RepoList({ repos }: RepoListProps) {
       <h2 className="text-2xl font-bold mb-6 text-center">Mes dépôts publics GitHub</h2>
       <ul className="space-y-4">
         {repos.map((repo) => (
-          <li key={repo.id} className="bg-white dark:bg-zinc-900 rounded-lg shadow p-5 border border-zinc-200 dark:border-zinc-800 transition hover:shadow-lg">
+          <li key={repo.id} className="bg-white dark:bg-zinc-900 rounded-lg shadow p-5 border transition hover:shadow-lg" style={{ borderColor: "var(--card-border)" }}>
             <a
               href={repo.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xl font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+              className="text-xl font-semibold hover:underline"
+              style={{ color: "var(--accent)" }}
             >
               {repo.name}
             </a>
