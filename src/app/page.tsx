@@ -1,6 +1,6 @@
 import Image from "next/image";
 import RepoList, { Repo } from "@/components/RepoList";
-import HourlyThemeBadge from "@/components/HourlyThemeBadge";
+import ThemeBadge from "@/components/ThemeBadge";
 
 async function getRepos(): Promise<Repo[]> {
   const res = await fetch("https://api.github.com/users/fte/repos?per_page=100", {
@@ -38,7 +38,7 @@ export default async function Home() {
         <section className="text-center max-w-2xl mx-auto mb-10">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tight">Dépôts publics GitHub de <span style={{ color: "var(--accent)" }}>fte</span></h1>
           <p className="text-lg text-zinc-600 dark:text-zinc-300 mb-6">Découvrez tous mes projets open source, mis à jour automatiquement via l’API GitHub.</p>
-          <HourlyThemeBadge />
+          <ThemeBadge />
         </section>
         <RepoList repos={repos} />
         {repos.length === 0 && (

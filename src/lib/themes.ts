@@ -1,5 +1,5 @@
-// Thème horaire côté client : déterministe à partir de la clé d'heure UTC,
-// choisie par hash pour une variation plus imprévisible qu'un simple cycle.
+// Thème appliqué côté client : tiré aléatoirement à chaque chargement,
+// avec mémorisation du précédent pour ne jamais répéter deux fois de suite.
 
 export type ThemeColors = {
   accent: string;
@@ -9,7 +9,7 @@ export type ThemeColors = {
   border: string;
 };
 
-export type HourlyTheme = {
+export type SiteTheme = {
   id: string;
   name: string;
   emoji: string;
@@ -17,7 +17,9 @@ export type HourlyTheme = {
   dark: ThemeColors;
 };
 
-export const THEMES: HourlyTheme[] = [
+export const STORAGE_KEY = "fab.tf.theme";
+
+export const THEMES: SiteTheme[] = [
   {
     id: "ocean",
     name: "Océan",
@@ -76,13 +78,8 @@ export const THEMES: HourlyTheme[] = [
   },
 ];
 
-/** Clé d'heure en UTC, ex. "2026-10-09T14". */
-export function hourKey(date = new Date()): string {
-  return date.toISOString().slice(0, 13);
-}
-
-/** Renvoie un thème par son id (utilisé par l'aperçu ?theme=...), sinon null. */
-export function getThemeById(id: string | null | undefined): HourlyTheme | null {
+/** Renvoie un thème par son id (insensible à la casse), sinon null. */
+export function getThemeById(id: string | null | undefined): SiteTheme | null {
   if (!id) {
     return null;
   }
@@ -94,41 +91,24 @@ export function getThemeById(id: string | null | undefined): HourlyTheme | null 
  * Thème forcé pour l'aperçu / les captures. Accepte `?theme=ocean` ou
  * `#theme=ocean`, sans se soucier de la casse ni des espaces.
  */
-export function getForcedTheme(search: string, hash = ""): HourlyTheme | null {
+export function getForcedTheme(search: string, hash = ""): SiteTheme | null {
   const fromQuery = new URLSearchParams(search).get("theme");
   const fromHash = new URLSearchParams(hash.replace(/^#/, "")).get("theme");
   return getThemeById(fromQuery ?? fromHash);
 }
 
-/** Hash 32 bits simple et stable (djb2-like). */
-export function hashString(value: string): number {
-  let hash = 0;
-  for (let i = 0; i < value.length; i++) {
-    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
-/**
- * Renvoie le thème de l'heure courante (UTC).
- * Le hash décide du thème ; on évite en plus de répéter le thème de
- * l'heure précédente pour garantir un vrai changement à chaque heure.
- */
-export function getHourlyTheme(date = new Date()): { key: string; theme: HourlyTheme; index: number } {
-  const key = hourKey(date);
-  let index = hashString(key) % THEMES.length;
-  const previousKey = hourKey(new Date(date.getTime() - 3_600_000));
-  if (index === hashString(previousKey) % THEMES.length) {
-    index = (index + 1) % THEMES.length;
-  }
-  return { key, theme: THEMES[index], index };
+/** Tirage aléatoire, en évitant si possible le thème précédent. */
+export function pickRandomTheme(excludeId?: string | null): SiteTheme {
+  const pool = excludeId ? THEMES.filter((theme) => theme.id !== excludeId) : THEMES;
+  const candidates = pool.length > 0 ? pool : THEMES;
+  return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
 /** Applique un thème aux variables CSS de <html> selon le mode clair/sombre. */
-export function applyTheme(theme: HourlyTheme, dark: boolean): void {
+export function applyTheme(theme: SiteTheme, dark: boolean): void {
   const colors = dark ? theme.dark : theme.light;
   const root = document.documentElement;
-  root.dataset.hourTheme = theme.id;
+  root.dataset.theme = theme.id;
   root.style.setProperty("--accent", colors.accent);
   root.style.setProperty("--page-from", colors.from);
   root.style.setProperty("--page-via", colors.via);

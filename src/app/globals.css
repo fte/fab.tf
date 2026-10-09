@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Valeurs de repli avant l'application du thème horaire (voir src/lib/themes.ts). */
+  /* Valeurs de repli avant l'application du thème (voir src/lib/themes.ts). */
   --accent: #2563eb;
   --page-from: #eff6ff;
   --page-via: #ffffff;
@@ -38,4 +38,26 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Apparition douce de la liste des dépôts après le mélange. */
+@keyframes fab-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fab-fade-in {
+  animation: fab-fade-in 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fab-fade-in {
+    animation: none;
+  }
 }
